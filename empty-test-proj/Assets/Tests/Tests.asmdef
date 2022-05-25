@@ -1,0 +1,20 @@
+{
+    "name": "Tests",
+    "rootNamespace": "Tests",
+    "references": [
+        "GUID:ebab752c2d2fbbb4b91a20d4f2032edd"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
