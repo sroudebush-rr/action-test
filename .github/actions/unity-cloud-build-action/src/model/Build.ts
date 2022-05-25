@@ -1,7 +1,8 @@
 /* eslint-disable filenames/match-regex */
-import {Download} from './Download';
+import {DownloadInfo} from './DownloadInfo';
+import {Platform} from './BuildTargetInfo';
 
-export default class Build {
+export class Build {
   build!: number;
   buildtargetid!: string;
   buildTargetName!: string;
@@ -24,21 +25,8 @@ export default class Build {
     | 'concurrency-timelimit'
     | 'restart-limit'
     | 'evaluation-timelimit';
-  platform!:
-    | 'ios'
-    | 'android'
-    | 'webplayer'
-    | 'webgl'
-    | 'standaloneosxintel'
-    | 'standaloneosxintel64'
-    | 'standaloneosxuniversal'
-    | 'standalonewindows'
-    | 'standalonewindows64'
-    | 'standalonelinux'
-    | 'standalonelinux64'
-    | 'standalonelinuxuniversal'
-    | 'cloudrendering';
-  download!: Download;
+  platform!: Platform;
+  download!: DownloadInfo;
   workspaceSize!: number;
   created!: string;
   finished!: string;

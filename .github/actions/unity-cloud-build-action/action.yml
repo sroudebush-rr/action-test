@@ -5,21 +5,32 @@ branding:
   icon: 'cloud-snow'
   color: 'black'
 inputs:
-  orgid: 
+  orgId: 
     required: true
-    description: 'Organisation ID'
-  projectid: # change this
+    description: 'Organization ID'
+  projectId:
     required: true
     description: 'Project ID'
-  buildtargetid: # change this
+  repoUrl:
     required: true
+    description: 'The repo url to use for the Unity project'
+  gitRef:
+    required: true
+    description: 'Target Git Ref, e.g. /refs/heads/main'
+  gitSha:
+    required: true
+    description: 'Target Git commit SHA'
+  subdirectoryPath:
+    required: false
+    default: ''
+    description: 'The subdirectory that is the root of the Unity project'
+  buildTargetId:
+    required: false
+    default: ''
     description: 'Build Target ID'
-  apikey:
+  apiKey:
     required: true
     description: 'Unity Cloud Build API key'
-  useactioncommit:
-    required: false
-    description: set to true to not use default commit, but the one linked to this action
 runs:
   using: 'node12'
   main: 'dist/index.js'
