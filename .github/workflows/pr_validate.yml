@@ -1,0 +1,18 @@
+name: PR Validate
+on:
+  pull_request:
+    secrets:
+      UNITY_CLOUD_BUILD_API_KEY:
+        descrtiption: 'The access key used to call Unity Cloud Build APIs'
+        required: true
+jobs:
+  start-cloud-build:
+    runs-on: wsl
+    steps:
+      # - uses: actions/checkout@v2
+      - uses: ./.github/actions/unity-cloud-build-action
+        with:
+          orgid: 20066671868386
+          projectid: 7e50c94f-4652-4d58-bc5b-d36dcfa8ab62
+          buildtargetid: default-webgl
+          apikey: ${{ secrets.UNITY_CLOUD_BUILD_API_KEY }}

@@ -1,0 +1,25 @@
+name: 'Unity Cloud Build Action'
+description: 'Allows to start a build on Unity Cloud Build, and await its result'
+author: 'Elmar Jansen'
+branding:
+  icon: 'cloud-snow'
+  color: 'black'
+inputs:
+  orgid: 
+    required: true
+    description: 'Organisation ID'
+  projectid: # change this
+    required: true
+    description: 'Project ID'
+  buildtargetid: # change this
+    required: true
+    description: 'Build Target ID'
+  apikey:
+    required: true
+    description: 'Unity Cloud Build API key'
+  useactioncommit:
+    required: false
+    description: set to true to not use default commit, but the one linked to this action
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
