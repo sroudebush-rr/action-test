@@ -1,5 +1,5 @@
 /* eslint-disable filenames/match-regex */
-export default class ShareLink {
+export class ShareLink {
   shareid = '';
   shareExpiry = '';
 }
