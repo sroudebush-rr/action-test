@@ -1,176 +1,6 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 3249:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-/* eslint-disable filenames/match-regex */
-const axios_1 = __importDefault(__nccwpck_require__(6545));
-const core = __importStar(__nccwpck_require__(2186));
-class BuildApi {
-    constructor(apiKey, orgId, projectId) {
-        this.apiKey = apiKey;
-        this.orgId = orgId;
-        this.projectId = projectId;
-        this.apiUrl = 'https://build-api.cloud.unity3d.com/api/v1';
-        this.requestOptions = {
-            headers: {
-                Authorization: `Basic ${this.apiKey}`
-            }
-        };
-    }
-    async runBuild(buildTargetId, gitSha, localCommit = true) {
-        // Start build and register build number:
-        let buildResult = await this.startBuild(buildTargetId, gitSha, localCommit);
-        const buildNumber = buildResult.build;
-        // Keep checking build status every 15 seconds until done or failed
-        for (;;) {
-            const buildStatus = buildResult.buildStatus;
-            if (buildStatus === 'queued' ||
-                buildStatus === 'sentToBuilder' ||
-                buildStatus === 'started' ||
-                buildStatus === 'restarted') {
-                const sleepDuration = 15;
-                await this.sleepFor(sleepDuration);
-                buildResult = await this.getBuildInfo(buildTargetId, buildNumber);
-            }
-            else {
-                break;
-            }
-        }
-        return buildResult;
-    }
-    async sleepFor(sleepDurationInSeconds) {
-        return new Promise(resolve => {
-            setTimeout(resolve, sleepDurationInSeconds * 1000);
-        });
-    }
-    async getBuildTargets() {
-        const getBuildTargetsEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets?include=settings`;
-        const response = await this.apiGet(getBuildTargetsEndpoint);
-        return response.data;
-    }
-    async createBuildTarget(targetName, platform, unityVersion, executableName, branch, subdirectoryPath, repoUrl) {
-        const buildTargetInfo = {
-            name: targetName,
-            enabled: true,
-            platform,
-            settings: {
-                autoBuild: false,
-                unityVersion,
-                autoDetectUnityVersion: false,
-                fallbackPatchVersion: true,
-                executablename: executableName,
-                platform: {
-                    bundleId: '',
-                    xcodeVersion: ''
-                },
-                scm: {
-                    type: 'git',
-                    branch,
-                    subdirectory: subdirectoryPath,
-                    repo: repoUrl,
-                    client: ''
-                },
-                advanced: {
-                    unity: {
-                        preExportMethod: '',
-                        postExportMethod: '',
-                        preBuildScript: '',
-                        postBuildScript: '',
-                        preBuildScriptFailsBuild: false,
-                        postBuildScriptFailsBuild: false,
-                        scriptingDefineSymbols: '',
-                        playerExporter: {
-                            sceneList: []
-                        },
-                        runUnitTests: true,
-                        runEditModeTests: true,
-                        runPlayModeTests: true,
-                        failedUnitTestFailsBuild: true,
-                        unitTestMethod: ''
-                    }
-                }
-            }
-        };
-        const createBuildTargetEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets`;
-        const createBuildTargetResponse = await this.apiPost(createBuildTargetEndpoint, buildTargetInfo);
-        return createBuildTargetResponse.data;
-    }
-    async startBuild(buildTargetId, gitSha, localCommit) {
-        const startBuildEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds`;
-        const startResponse = await this.apiPost(startBuildEndpoint, {
-            commit: localCommit ? gitSha : undefined
-        });
-        return startResponse.data[0];
-    }
-    async getBuildInfo(buildTargetId, buildNumber) {
-        const buildInfoEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds/${buildNumber}`;
-        const buildStatusResponse = await this.apiGet(buildInfoEndpoint);
-        return buildStatusResponse.data;
-    }
-    async createShareLink(buildTargetId, buildNumber) {
-        const shareEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds/${buildNumber}/share`;
-        const shareResponse = await this.apiPost(shareEndpoint, {});
-        return shareResponse.data;
-    }
-    async getShareLinkId(buildTargetId, buildNumber) {
-        const shareEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds/${buildNumber}/share`;
-        const shareResponse = await this.apiGet(shareEndpoint);
-        return shareResponse.data;
-    }
-    async getShareInfo(shareid) {
-        const shareEndpoint = `/shares/${shareid}`;
-        const shareResponse = await this.apiGet(shareEndpoint);
-        return shareResponse.data;
-    }
-    async getShareInfoFromBuildId(buildTargetId, buildNumber) {
-        const shareLinkIdData = await this.getShareLinkId(buildTargetId, buildNumber);
-        const shareLinkData = await this.getShareInfo(shareLinkIdData.shareid);
-        core.info(`Info: ${JSON.stringify(shareLinkData)}`);
-        return shareLinkData['download']['href'];
-    }
-    async apiGet(endpoint) {
-        return await axios_1.default.get(this.apiUrl + endpoint, this.requestOptions);
-    }
-    async apiPost(endpoint, body) {
-        return await axios_1.default.post(this.apiUrl + endpoint, body, this.requestOptions);
-    }
-}
-exports["default"] = BuildApi;
-
-
-/***/ }),
-
 /***/ 6066:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -295,15 +125,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 /* eslint-disable i18n-text/no-en */
 const core = __importStar(__nccwpck_require__(2186));
-const axios_1 = __nccwpck_require__(6545);
+const axios_1 = __importDefault(__nccwpck_require__(6545));
 const strftime_1 = __importDefault(__nccwpck_require__(4006));
-const BuildApi_1 = __importDefault(__nccwpck_require__(3249));
+const unity_cloud_build_client_1 = __nccwpck_require__(8280);
 const appFunctions_1 = __nccwpck_require__(6066);
 function generateBuildTargetName(platform) {
     const formattedTime = strftime_1.default.utc()('%Y%m%d%H%M%S%L', new Date());
     return `generated_${platform}_${formattedTime}`;
 }
 async function run() {
+    var _a;
+    const axiosVersion = axios_1.default.VERSION;
+    core.info(`Axios version: ${axiosVersion}`);
     try {
         const orgId = core.getInput('orgId');
         const projectId = core.getInput('projectId');
@@ -315,7 +148,7 @@ async function run() {
             .getInput('repoUrl')
             .replace('git://github.com/', 'git@github.com:');
         const subdirectoryPath = core.getInput('subdirectoryPath');
-        const api = new BuildApi_1.default(apiKey, orgId, projectId);
+        const api = new unity_cloud_build_client_1.BuildApi(apiKey, orgId, projectId);
         const branchName = gitRef.replace(/\/?refs\/heads\//, '');
         if (buildTargetId.length === 0) {
             core.info(`Creating build target for branch '${branchName}'...`);
@@ -327,29 +160,35 @@ async function run() {
         core.info(`Starting cloud build now...`);
         const buildResult = await api.runBuild(buildTargetId, gitSha);
         core.info(`Build finished!`);
-        core.setOutput('BuildResult', buildResult);
-        {
-            core.info('Getting share link');
-            const shareLinkResult = await (0, appFunctions_1.doShareLinkCreation)(api, buildTargetId, buildResult.build);
-            if (shareLinkResult != null) {
-                core.info(`Share link: ${shareLinkResult.shareid}`);
-                core.setOutput('share-link', shareLinkResult.shareid);
-            }
-        }
+        core.setOutput('buildResult', buildResult);
         if (buildResult.buildStatus !== 'success') {
             core.setFailed(`Build failed with status ${buildResult.buildStatus}. Info: ${JSON.stringify(buildResult)}`);
         }
         else {
             core.info(`Build succeeded in ${buildResult.totalTimeInSeconds} seconds.`);
+            core.info('Getting share link');
+            const shareLinkResult = await (0, appFunctions_1.doShareLinkCreation)(api, buildTargetId, buildResult.build);
+            if (shareLinkResult != null) {
+                core.info(`Share Id: ${shareLinkResult.shareid}`);
+                core.setOutput('shareId', shareLinkResult.shareid);
+            }
+            const hasPrimaryDownloadLink = !!((_a = buildResult.links.download_primary) === null || _a === void 0 ? void 0 : _a.href);
+            if (hasPrimaryDownloadLink) {
+                core.info(`Primary download url: ${buildResult.links.download_primary.href}`);
+                core.setOutput('downloadUrl', buildResult.links.download_primary.href);
+            }
+            else {
+                core.warning('No primary download url found');
+            }
         }
         // TODO: clean up build targets. Clean up will cause data to be lost in cloud-build,
         // it will be better to clean up only old (30 days?) targets.
     }
     catch (error) {
-        if (error instanceof axios_1.AxiosError && error && error.response) {
-            core.setFailed(`Error HTTP response. Error: ${error.response.data.error}. Status: ${error.response.status}`);
+        if (axios_1.default.isAxiosError(error) && error && error.response) {
+            core.setFailed(`Error HTTP response. Status: ${error.response.status} Error: ${error.toJSON()}.`);
         }
-        else if (error instanceof axios_1.AxiosError && error && error.request) {
+        else if (axios_1.default.isAxiosError(error) && error && error.request) {
             core.setFailed(`Error HTTP request: ${error.request}.`);
         }
         else if (error instanceof Error) {
@@ -2028,6 +1867,325 @@ function checkBypass(reqUrl) {
 }
 exports.checkBypass = checkBypass;
 //# sourceMappingURL=proxy.js.map
+
+/***/ }),
+
+/***/ 1107:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BuildApi = void 0;
+/* eslint-disable filenames/match-regex */
+const axios_1 = __importDefault(__nccwpck_require__(6545));
+const core = __importStar(__nccwpck_require__(2186));
+class BuildApi {
+    constructor(apiKey, orgId, projectId) {
+        this.apiKey = apiKey;
+        this.orgId = orgId;
+        this.projectId = projectId;
+        this.apiUrl = 'https://build-api.cloud.unity3d.com/api/v1';
+        this.requestOptions = {
+            headers: {
+                Authorization: `Basic ${this.apiKey}`
+            }
+        };
+    }
+    async runBuild(buildTargetId, gitSha, localCommit = true) {
+        // Start build and register build number:
+        let buildResult = await this.startBuild(buildTargetId, gitSha, localCommit);
+        const buildNumber = buildResult.build;
+        // Keep checking build status every 15 seconds until done or failed
+        for (;;) {
+            const buildStatus = buildResult.buildStatus;
+            if (buildStatus === 'queued' ||
+                buildStatus === 'sentToBuilder' ||
+                buildStatus === 'started' ||
+                buildStatus === 'restarted') {
+                const sleepDuration = 15;
+                await this.sleepFor(sleepDuration);
+                buildResult = await this.getBuildInfo(buildTargetId, buildNumber);
+            }
+            else {
+                break;
+            }
+        }
+        return buildResult;
+    }
+    async sleepFor(sleepDurationInSeconds) {
+        return new Promise(resolve => {
+            setTimeout(resolve, sleepDurationInSeconds * 1000);
+        });
+    }
+    async getBuildTargets() {
+        const getBuildTargetsEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets?include=settings`;
+        const response = await this.apiGet(getBuildTargetsEndpoint);
+        return response.data;
+    }
+    async createBuildTarget(targetName, platform, unityVersion, executableName, branch, subdirectoryPath, repoUrl) {
+        const buildTargetInfo = {
+            name: targetName,
+            enabled: true,
+            platform,
+            settings: {
+                autoBuild: false,
+                unityVersion,
+                autoDetectUnityVersion: false,
+                fallbackPatchVersion: true,
+                executablename: executableName,
+                platform: {
+                    bundleId: '',
+                    xcodeVersion: ''
+                },
+                scm: {
+                    type: 'git',
+                    branch,
+                    subdirectory: subdirectoryPath,
+                    repo: repoUrl,
+                    client: ''
+                },
+                operatingSystemSelected: 'mac',
+                advanced: {
+                    unity: {
+                        preExportMethod: '',
+                        postExportMethod: '',
+                        preBuildScript: '',
+                        postBuildScript: '',
+                        preBuildScriptFailsBuild: false,
+                        postBuildScriptFailsBuild: false,
+                        scriptingDefineSymbols: '',
+                        playerExporter: {
+                            sceneList: []
+                        },
+                        runUnitTests: true,
+                        runEditModeTests: true,
+                        runPlayModeTests: true,
+                        failedUnitTestFailsBuild: true,
+                        unitTestMethod: ''
+                    }
+                }
+            }
+        };
+        const createBuildTargetEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets`;
+        const createBuildTargetResponse = await this.apiPost(createBuildTargetEndpoint, buildTargetInfo);
+        return createBuildTargetResponse.data;
+    }
+    async startBuild(buildTargetId, gitSha, localCommit) {
+        const startBuildEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds`;
+        const startResponse = await this.apiPost(startBuildEndpoint, {
+            commit: localCommit ? gitSha : undefined
+        });
+        return startResponse.data[0];
+    }
+    async getBuildInfo(buildTargetId, buildNumber) {
+        const buildInfoEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds/${buildNumber}`;
+        const buildStatusResponse = await this.apiGet(buildInfoEndpoint);
+        return buildStatusResponse.data;
+    }
+    async createShareLink(buildTargetId, buildNumber) {
+        const shareEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds/${buildNumber}/share`;
+        const shareResponse = await this.apiPost(shareEndpoint, {});
+        return shareResponse.data;
+    }
+    async getShareLinkId(buildTargetId, buildNumber) {
+        const shareEndpoint = `/orgs/${this.orgId}/projects/${this.projectId}/buildtargets/${buildTargetId}/builds/${buildNumber}/share`;
+        const shareResponse = await this.apiGet(shareEndpoint);
+        return shareResponse.data;
+    }
+    async getShareInfo(shareid) {
+        const shareEndpoint = `/shares/${shareid}`;
+        const shareResponse = await this.apiGet(shareEndpoint);
+        return shareResponse.data;
+    }
+    async getShareInfoFromBuildId(buildTargetId, buildNumber) {
+        const shareLinkIdData = await this.getShareLinkId(buildTargetId, buildNumber);
+        const shareLinkData = await this.getShareInfo(shareLinkIdData.shareid);
+        core.info(`Info: ${JSON.stringify(shareLinkData)}`);
+        return shareLinkData['download']['href'];
+    }
+    async apiGet(endpoint) {
+        return await axios_1.default.get(this.apiUrl + endpoint, this.requestOptions);
+    }
+    async apiPost(endpoint, body) {
+        return await axios_1.default.post(this.apiUrl + endpoint, body, this.requestOptions);
+    }
+}
+exports.BuildApi = BuildApi;
+
+
+/***/ }),
+
+/***/ 3590:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BuildApi = void 0;
+var BuildApi_1 = __nccwpck_require__(1107);
+Object.defineProperty(exports, "BuildApi", ({ enumerable: true, get: function () { return BuildApi_1.BuildApi; } }));
+
+
+/***/ }),
+
+/***/ 8280:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ScmInfo = exports.CreateBuildTargetInfo = exports.BuildTargetInfo = exports.Build = exports.DownloadInfo = exports.ShareLink = exports.BuildApi = void 0;
+var api_1 = __nccwpck_require__(3590);
+Object.defineProperty(exports, "BuildApi", ({ enumerable: true, get: function () { return api_1.BuildApi; } }));
+var model_1 = __nccwpck_require__(6203);
+Object.defineProperty(exports, "ShareLink", ({ enumerable: true, get: function () { return model_1.ShareLink; } }));
+Object.defineProperty(exports, "DownloadInfo", ({ enumerable: true, get: function () { return model_1.DownloadInfo; } }));
+Object.defineProperty(exports, "Build", ({ enumerable: true, get: function () { return model_1.Build; } }));
+Object.defineProperty(exports, "BuildTargetInfo", ({ enumerable: true, get: function () { return model_1.BuildTargetInfo; } }));
+Object.defineProperty(exports, "CreateBuildTargetInfo", ({ enumerable: true, get: function () { return model_1.CreateBuildTargetInfo; } }));
+Object.defineProperty(exports, "ScmInfo", ({ enumerable: true, get: function () { return model_1.ScmInfo; } }));
+
+
+/***/ }),
+
+/***/ 9423:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Build = void 0;
+class Build {
+    constructor() {
+        this.cleanBuild = false;
+        this.failureDetails = [];
+        this.changeset = [];
+        this.favorited = false;
+        this.deleted = false;
+        this.credentialsOutdated = false;
+    }
+}
+exports.Build = Build;
+
+
+/***/ }),
+
+/***/ 3838:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+/* eslint-disable filenames/match-regex */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CreateBuildTargetInfo = exports.BuildTargetInfo = exports.BuildSettings = exports.PlatformInfo = exports.AdvanceBuildSettings = exports.AdvancedUnityBuildSettings = exports.PlayerExporterBuildSettings = exports.ScmInfo = void 0;
+/* NOTE: The models here are very incomplete, see API docs for complete model */
+class ScmInfo {
+}
+exports.ScmInfo = ScmInfo;
+class PlayerExporterBuildSettings {
+}
+exports.PlayerExporterBuildSettings = PlayerExporterBuildSettings;
+class AdvancedUnityBuildSettings {
+}
+exports.AdvancedUnityBuildSettings = AdvancedUnityBuildSettings;
+class AdvanceBuildSettings {
+}
+exports.AdvanceBuildSettings = AdvanceBuildSettings;
+class PlatformInfo {
+}
+exports.PlatformInfo = PlatformInfo;
+class BuildSettings {
+}
+exports.BuildSettings = BuildSettings;
+class BuildTargetInfo {
+}
+exports.BuildTargetInfo = BuildTargetInfo;
+class CreateBuildTargetInfo {
+}
+exports.CreateBuildTargetInfo = CreateBuildTargetInfo;
+
+
+/***/ }),
+
+/***/ 7606:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DownloadInfo = void 0;
+// eslint-disable-next-line filenames/match-regex
+class DownloadInfo {
+}
+exports.DownloadInfo = DownloadInfo;
+
+
+/***/ }),
+
+/***/ 4883:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShareLink = void 0;
+/* eslint-disable filenames/match-regex */
+class ShareLink {
+    constructor() {
+        this.shareid = '';
+        this.shareExpiry = '';
+    }
+}
+exports.ShareLink = ShareLink;
+
+
+/***/ }),
+
+/***/ 6203:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ScmInfo = exports.CreateBuildTargetInfo = exports.BuildTargetInfo = exports.Build = exports.DownloadInfo = exports.ShareLink = void 0;
+var ShareLink_1 = __nccwpck_require__(4883);
+Object.defineProperty(exports, "ShareLink", ({ enumerable: true, get: function () { return ShareLink_1.ShareLink; } }));
+var DownloadInfo_1 = __nccwpck_require__(7606);
+Object.defineProperty(exports, "DownloadInfo", ({ enumerable: true, get: function () { return DownloadInfo_1.DownloadInfo; } }));
+var Build_1 = __nccwpck_require__(9423);
+Object.defineProperty(exports, "Build", ({ enumerable: true, get: function () { return Build_1.Build; } }));
+var BuildTargetInfo_1 = __nccwpck_require__(3838);
+Object.defineProperty(exports, "BuildTargetInfo", ({ enumerable: true, get: function () { return BuildTargetInfo_1.BuildTargetInfo; } }));
+Object.defineProperty(exports, "CreateBuildTargetInfo", ({ enumerable: true, get: function () { return BuildTargetInfo_1.CreateBuildTargetInfo; } }));
+Object.defineProperty(exports, "ScmInfo", ({ enumerable: true, get: function () { return BuildTargetInfo_1.ScmInfo; } }));
+
 
 /***/ }),
 
@@ -6743,21 +6901,26 @@ RedirectableRequest.prototype._performRequest = function () {
     this._options.agent = this._options.agents[scheme];
   }
 
-  // Create the native request
+  // Create the native request and set up its event handlers
   var request = this._currentRequest =
         nativeProtocol.request(this._options, this._onNativeResponse);
-  this._currentUrl = url.format(this._options);
-
-  // Set up event handlers
   request._redirectable = this;
-  for (var e = 0; e < events.length; e++) {
-    request.on(events[e], eventHandlers[events[e]]);
+  for (var event of events) {
+    request.on(event, eventHandlers[event]);
   }
+
+  // RFC7230§5.3.1: When making a request directly to an origin server, […]
+  // a client MUST send only the absolute path […] as the request-target.
+  this._currentUrl = /^\//.test(this._options.path) ?
+    url.format(this._options) :
+    // When making a request to a proxy, […]
+    // a client MUST send the target URI in absolute-form […].
+    this._currentUrl = this._options.path;
 
   // End a redirected request
   // (The first request must be ended explicitly with RedirectableRequest#end)
   if (this._isRedirect) {
-    // Write the request entity and end.
+    // Write the request entity and end
     var i = 0;
     var self = this;
     var buffers = this._requestBodyBuffers;
@@ -7045,8 +7208,8 @@ function createErrorType(code, defaultMessage) {
 }
 
 function abortRequest(request) {
-  for (var e = 0; e < events.length; e++) {
-    request.removeListener(events[e], eventHandlers[events[e]]);
+  for (var event of events) {
+    request.removeListener(event, eventHandlers[event]);
   }
   request.on("error", noop);
   request.abort();

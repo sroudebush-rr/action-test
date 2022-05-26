@@ -4,7 +4,7 @@ import * as core from '@actions/core';
 import {Build, BuildTargetInfo, CreateBuildTargetInfo, ShareLink} from '../model';
 import {Platform} from '../model/BuildTargetInfo';
 
-export default class BuildApi {
+export class BuildApi {
   requestOptions: {headers: {Authorization: string}};
   constructor(private apiKey: string, private orgId: string, private projectId: string) {
     this.requestOptions = {
@@ -82,6 +82,7 @@ export default class BuildApi {
           repo: repoUrl,
           client: ''
         },
+        operatingSystemSelected: 'mac',
         advanced: {
           unity: {
             preExportMethod: '',

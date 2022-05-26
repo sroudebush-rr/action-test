@@ -2,8 +2,7 @@
 /* eslint-disable i18n-text/no-en */
 import * as core from '@actions/core';
 import {AxiosError} from 'axios';
-import {BuildTargetInfo, ShareLink} from './model';
-import BuildApi from './api/BuildApi';
+import {BuildApi, BuildTargetInfo, ShareLink} from '@rapidrobotics/unity-cloud-build-client';
 
 export function parseUseActionCommit(input: string): boolean {
   const acceptedValues = ['true', 'false'];

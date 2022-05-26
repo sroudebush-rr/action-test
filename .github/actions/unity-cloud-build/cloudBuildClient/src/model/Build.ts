@@ -68,7 +68,7 @@ export class Build {
   orgId!: string;
   orgFk!: string;
   filetoken!: string;
-  links!: object;
+  links!: {[key: string]: {method: string; href: string}};
   buildReport!: object;
   testResults!: object;
   error!: string;

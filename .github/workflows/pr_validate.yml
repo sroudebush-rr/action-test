@@ -7,12 +7,13 @@ on:
     - prod
   pull_request: {}
 jobs:
-  start-cloud-build:
+  run-cloud-build:
     runs-on: wsl
     environment: action-runner-env
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/unity-cloud-build-action
+      - id: cloud-build
+        uses: ./.github/actions/unity-cloud-build/runBuild
         with:
           orgId: 20066671868386
           projectId: 7e50c94f-4652-4d58-bc5b-d36dcfa8ab62
@@ -21,3 +22,10 @@ jobs:
           gitRef: ${{ github.head_ref || github.ref }}
           gitSha: ${{ github.event.pull_request.head.sha || github.context.sha }}
           subdirectoryPath: 'empty-test-proj'
+      - id: stage-files
+        uses: ./.github/actions/unity-cloud-build/stageFiles
+        if: ${{ success() }}
+        with:
+          artifactUrl: ${{ steps.cloud-build.outputs.downloadUrl }}
+          #artifactUrl: "https://storage.googleapis.com/unitycloud-build-user-svc-live-build/20066671868386%2F7e50c94f-4652-4d58-bc5b-d36dcfa8ab62%2Fgenerated_webgl_20220526171158956-3%2Fdefault-webgl.zip?GoogleAccessId=signurl-sa%40unity-cs-cloudbuild-prd.iam.gserviceaccount.com&Expires=1653624490&Signature=rifKjSY6GniUb8seCwzl3eY%2FhXiUoY0FUztx14Iazv2mRGWTugyAbcfOKt69FxHN6R09J5H1ntpfqFsjruPMZ2cfm1Ci9GXHyPv11tQ85LYWEbTAUt5Fh6RvL7aTl6PT8sky6qnHxrhzCDKa59SM%2F2Aqj5dXHV0e%2F5kGTR02C0jn2Zv4xHTDgd37ytVNNZmXJxM6T%2F54LIBPqawM8C4tkJNiQi3u1%2BHTIWIHKMUSCY%2F%2BXnCdTOqUJ5voLM4g3OEn%2FqVq2lypHC80FbUqjseqLkUfF9RG%2BRsFzJHianG5cLtNpJwaZa3LoZ3uWh3XDhtklCLJFfj%2ByBcwL%2FUjY4J0VA%3D%3D&response-content-type=application%2Foctet-stream&response-content-disposition=attachment%3B%20filename%3Drapid-robotics-gemini-generated_webgl_20220526171158956-3.zip"
+      #- id: publish-to-s3

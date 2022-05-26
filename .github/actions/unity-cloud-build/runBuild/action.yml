@@ -1,11 +1,10 @@
-name: 'Unity Cloud Build Action'
+name: 'Unity Cloud Build Run Build Action'
 description: 'Allows to start a build on Unity Cloud Build, and await its result'
-author: 'Elmar Jansen'
 branding:
   icon: 'cloud-snow'
   color: 'black'
 inputs:
-  orgId: 
+  orgId:
     required: true
     description: 'Organization ID'
   projectId:
@@ -31,6 +30,13 @@ inputs:
   apiKey:
     required: true
     description: 'Unity Cloud Build API key'
+outputs:
+  buildResult:
+    description: 'Metadata about the build result'
+  downloadUrl:
+    description: 'URL to download primary build artifact'
+  shareId:
+    description: 'Id to use to retreive build artifact info'
 runs:
   using: 'node12'
   main: 'dist/index.js'

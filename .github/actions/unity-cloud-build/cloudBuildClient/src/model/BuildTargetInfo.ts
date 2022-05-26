@@ -46,6 +46,7 @@ export class BuildSettings {
   fallbackPatchVersion!: boolean;
   executablename!: string;
   scm!: ScmInfo;
+  operatingSystemSelected!: 'mac' | 'windows' | 'automatic';
   platform!: PlatformInfo;
   advanced!: AdvanceBuildSettings;
 }

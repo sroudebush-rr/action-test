@@ -1,9 +1,8 @@
 /* eslint-disable i18n-text/no-en */
 import * as core from '@actions/core';
-import {AxiosError} from 'axios';
+import axios from 'axios';
 import strftime from 'strftime';
-import {Platform} from './model';
-import BuildApi from './api/BuildApi';
+import {BuildApi, Platform} from '@rapidrobotics/unity-cloud-build-client';
 import {createNewBuildTargetForBranch, doShareLinkCreation} from './appFunctions';
 
 function generateBuildTargetName(platform: Platform): string {
@@ -12,6 +11,9 @@ function generateBuildTargetName(platform: Platform): string {
 }
 
 async function run(): Promise<void> {
+  const axiosVersion = axios.VERSION;
+  core.info(`Axios version: ${axiosVersion}`);
+
   try {
     const orgId: string = core.getInput('orgId');
     const projectId: string = core.getInput('projectId');
@@ -47,17 +49,7 @@ async function run(): Promise<void> {
     const buildResult = await api.runBuild(buildTargetId, gitSha);
 
     core.info(`Build finished!`);
-    core.setOutput('BuildResult', buildResult);
-
-    {
-      core.info('Getting share link');
-      const shareLinkResult = await doShareLinkCreation(api, buildTargetId, buildResult.build);
-
-      if (shareLinkResult != null) {
-        core.info(`Share link: ${shareLinkResult.shareid}`);
-        core.setOutput('share-link', shareLinkResult.shareid);
-      }
-    }
+    core.setOutput('buildResult', buildResult);
 
     if (buildResult.buildStatus !== 'success') {
       core.setFailed(
@@ -65,16 +57,31 @@ async function run(): Promise<void> {
       );
     } else {
       core.info(`Build succeeded in ${buildResult.totalTimeInSeconds} seconds.`);
+      core.info('Getting share link');
+      const shareLinkResult = await doShareLinkCreation(api, buildTargetId, buildResult.build);
+
+      if (shareLinkResult != null) {
+        core.info(`Share Id: ${shareLinkResult.shareid}`);
+        core.setOutput('shareId', shareLinkResult.shareid);
+      }
+
+      const hasPrimaryDownloadLink = !!buildResult.links.download_primary?.href;
+      if (hasPrimaryDownloadLink) {
+        core.info(`Primary download url: ${buildResult.links.download_primary.href}`);
+        core.setOutput('downloadUrl', buildResult.links.download_primary.href);
+      } else {
+        core.warning('No primary download url found');
+      }
     }
 
     // TODO: clean up build targets. Clean up will cause data to be lost in cloud-build,
     // it will be better to clean up only old (30 days?) targets.
   } catch (error) {
-    if (error instanceof AxiosError && error && error.response) {
+    if (axios.isAxiosError(error) && error && error.response) {
       core.setFailed(
-        `Error HTTP response. Error: ${error.response.data.error}. Status: ${error.response.status}`
+        `Error HTTP response. Status: ${error.response.status} Error: ${error.toJSON()}.`
       );
-    } else if (error instanceof AxiosError && error && error.request) {
+    } else if (axios.isAxiosError(error) && error && error.request) {
       core.setFailed(`Error HTTP request: ${error.request}.`);
     } else if (error instanceof Error) {
       core.setFailed(error.message);
