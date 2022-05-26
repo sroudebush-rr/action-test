@@ -26,7 +26,7 @@ async function run(): Promise<void> {
 
     const api = new BuildApi(apiKey, orgId, projectId);
 
-    const branchName = gitRef.replace('/refs/heads/', '');
+    const branchName = gitRef.replace(/\/?refs\/heads\//, '');
 
     if (buildTargetId.length === 0) {
       core.info(`Creating build target for branch '${branchName}'...`);
