@@ -316,7 +316,7 @@ async function run() {
             .replace('git://github.com/', 'git@github.com:');
         const subdirectoryPath = core.getInput('subdirectoryPath');
         const api = new BuildApi_1.default(apiKey, orgId, projectId);
-        const branchName = gitRef.replace('/refs/heads/', '');
+        const branchName = gitRef.replace(/\/?refs\/heads\//, '');
         if (buildTargetId.length === 0) {
             core.info(`Creating build target for branch '${branchName}'...`);
             const targetName = generateBuildTargetName('webgl');
