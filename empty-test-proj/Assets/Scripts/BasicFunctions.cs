@@ -5,7 +5,8 @@ public static class Math {
     }
 
     public static int Add(int lhs, int rhs) {
-        return lhs + rhs;
+        var whoops = 100;
+        return lhs + rhs + whoops;
     }
 }
 }
