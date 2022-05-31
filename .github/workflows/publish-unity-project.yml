@@ -2,6 +2,10 @@ name: Publish Gemini
 on:
   workflow_call:
     inputs:
+      environment:
+        description: 'Name of the runner environment to use'
+        required: true
+        type: string
       runs-on:
         description: 'The runner to use'
         default: wsl # TODO: identify runner to use
@@ -28,6 +32,7 @@ on:
 jobs:
   publish:
     runs-on: ${{ inputs.runs-on }}
+    environment: ${{ inputs.environment }}
     steps:
       - id: publish-to-s3
         uses: jakejarvis/s3-sync-action@v0.5.1

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PROJECT_NAME="default-webgl"
-
 mkdir -p work
 mkdir -p dist/Build
 
