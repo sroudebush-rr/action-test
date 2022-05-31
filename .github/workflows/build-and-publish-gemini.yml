@@ -9,6 +9,7 @@ jobs:
   build-and-publish:
     name: Build and Publish Gemini
     steps:
+    - uses: actions/checkout@v2
     - id: run-cloud-build
       uses: ./.github/workflows/build-unity-project.yml
       with:
