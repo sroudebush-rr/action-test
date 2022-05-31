@@ -1,5 +1,10 @@
 name: Build Gemini
 on:
+  push:
+    branches:
+    - '!master'
+    - '!develop'
+    - '!prod'
   pull_request:
     branches:
     - master
