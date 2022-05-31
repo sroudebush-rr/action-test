@@ -31,7 +31,7 @@ on:
         type: string
     outputs:
       staging-dir-path:
-        value: ${{ jobs.run-cloud-build.outputs.staging-dirpath }}
+        value: ${{ jobs.run-cloud-build.outputs.staging-dir-path }}
     secrets:
       unity-cloud-build-api-key:
         description: 'The Unity Cloud Build API access token'
