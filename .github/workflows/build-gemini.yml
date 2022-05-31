@@ -1,6 +1,10 @@
 name: Build Gemini
 on:
-  pull_request: {}
+  pull_request:
+    branches:
+    - master
+    - develop
+    - prod
 jobs:
   build:
     name: Build Gemini
