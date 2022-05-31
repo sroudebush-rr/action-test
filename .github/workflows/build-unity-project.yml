@@ -52,7 +52,7 @@ jobs:
           apiKey: ${{ secrets.unity-cloud-build-api-key }}
           repoUrl: ${{ github.repositoryUrl }}
           gitRef: ${{ github.head_ref || github.ref }}
-          gitSha: ${{ github.event.pull_request.head.sha || github.context.sha }}
+          gitSha: ${{ github.event.pull_request.head.sha || github.sha }}
           subdirectoryPath: ${{ inputs.project-subdirectory }}
           projectName: ${{ inputs.project-name }}
       - id: stage-files

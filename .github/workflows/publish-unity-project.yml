@@ -44,5 +44,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
           AWS_REGION: ${{ secrets.aws-region }}
           SOURCE_DIR: ${{ inputs.staging-dir-path }}
-          DEST_DIR: "gemini-${{ github.event.pull_request.head.sha || github.context.sha }}"
+          DEST_DIR: "gemini-${{ github.event.pull_request.head.sha || github.sha }}"
 
