@@ -20,6 +20,10 @@ on:
         default: 'default-webgl'
         required: false
         type: string
+      environment:
+        description: 'Name of the runner environment to use'
+        required: true
+        type: string
       runs-on:
         description: 'The runner to use'
         default: wsl # TODO: identify runner to use
@@ -27,7 +31,7 @@ on:
         type: string
     outputs:
       staging-dir-path:
-        value: ${{ jobs.run-cloud-build.steps.stage-files.outputs.stagingDirPath }}
+        value: ${{ jobs.run-cloud-build.outputs.staging-dirpath }}
     secrets:
       unity-cloud-build-api-key:
         description: 'The Unity Cloud Build API access token'
@@ -35,13 +39,16 @@ on:
 jobs:
   run-cloud-build:
     runs-on: ${{ inputs.runs-on }}
+    environment: ${{ inputs.environment }}
+    outputs:
+      staging-dir-path: ${{ steps.stage-files.outputs.stagingDirPath }}
     steps:
       - uses: actions/checkout@v2
       - id: cloud-build
         uses: ./.github/actions/unity-cloud-build/runBuild
         with:
-          orgId: ${{ cloud-build-org-id }}
-          projectId: ${{ cloud-build-project-id }}
+          orgId: ${{ inputs.cloud-build-org-id }}
+          projectId: ${{ inputs.cloud-build-project-id }}
           apiKey: ${{ secrets.unity-cloud-build-api-key }}
           repoUrl: ${{ github.repositoryUrl }}
           gitRef: ${{ github.head_ref || github.ref }}
