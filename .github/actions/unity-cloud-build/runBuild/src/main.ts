@@ -25,6 +25,7 @@ async function run(): Promise<void> {
       .getInput('repoUrl')
       .replace('git://github.com/', 'git@github.com:');
     const subdirectoryPath: string = core.getInput('subdirectoryPath');
+    const projectName: string = core.getInput('projectName');
 
     const api = new BuildApi(apiKey, orgId, projectId);
 
@@ -38,7 +39,8 @@ async function run(): Promise<void> {
         targetName,
         repoUrl,
         branchName,
-        subdirectoryPath
+        subdirectoryPath,
+        projectName
       );
       buildTargetId = buildInfo.buildtargetid;
       core.info(`Created with buildTargetId '${buildTargetId}'.`);

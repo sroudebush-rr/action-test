@@ -1,0 +1,17 @@
+name: Build Gemini
+on:
+  pull_request: {}
+jobs:
+  build:
+    name: Build Gemini
+    steps:
+    - id: run-cloud-build
+      uses: ./.github/workflows/build-unity-project.yml
+      with:
+        cloud-build-org-id: '20066671868386'
+        cloud-build-project-id: 7e50c94f-4652-4d58-bc5b-d36dcfa8ab62
+        project-subdirectory: empty-test-proj
+        project-name: gemini
+        runs-on: wsl
+      secrets:
+        unity-cloud-build-api-key: ${{ secrets.UNITY_CLOUD_BUILD_API_KEY }}

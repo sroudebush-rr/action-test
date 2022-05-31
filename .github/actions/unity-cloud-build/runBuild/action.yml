@@ -23,6 +23,10 @@ inputs:
     required: false
     default: ''
     description: 'The subdirectory that is the root of the Unity project'
+  projectName:
+    required: false
+    default: 'default-webgl'
+    description: 'The project name to use in Cloud Build, artifacts are prefixed with this name'
   buildTargetId:
     required: false
     default: ''

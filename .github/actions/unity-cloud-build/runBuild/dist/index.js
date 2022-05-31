@@ -73,7 +73,7 @@ async function doShareLinkCreation(api, buildTargetId, buildNumber) {
     return shareResult;
 }
 exports.doShareLinkCreation = doShareLinkCreation;
-async function createNewBuildTargetForBranch(api, targetName, repoUrl, branchName, subdirectoryPath) {
+async function createNewBuildTargetForBranch(api, targetName, repoUrl, branchName, subdirectoryPath, projectName) {
     const existingTargets = await api.getBuildTargets();
     const existingTargetBranches = existingTargets.map(bt => bt.settings.scm.branch);
     const branchAlreadyExists = existingTargetBranches.includes(branchName);
@@ -82,7 +82,7 @@ async function createNewBuildTargetForBranch(api, targetName, repoUrl, branchNam
     }
     const platform = 'webgl';
     const unityVersion = 'latest2021';
-    const executableName = 'default-webgl';
+    const executableName = projectName;
     const buildTargetResponse = await api.createBuildTarget(targetName, platform, unityVersion, executableName, branchName, subdirectoryPath, repoUrl);
     return buildTargetResponse;
 }
@@ -148,12 +148,13 @@ async function run() {
             .getInput('repoUrl')
             .replace('git://github.com/', 'git@github.com:');
         const subdirectoryPath = core.getInput('subdirectoryPath');
+        const projectName = core.getInput('projectName');
         const api = new unity_cloud_build_client_1.BuildApi(apiKey, orgId, projectId);
         const branchName = gitRef.replace(/\/?refs\/heads\//, '');
         if (buildTargetId.length === 0) {
             core.info(`Creating build target for branch '${branchName}'...`);
             const targetName = generateBuildTargetName('webgl');
-            const buildInfo = await (0, appFunctions_1.createNewBuildTargetForBranch)(api, targetName, repoUrl, branchName, subdirectoryPath);
+            const buildInfo = await (0, appFunctions_1.createNewBuildTargetForBranch)(api, targetName, repoUrl, branchName, subdirectoryPath, projectName);
             buildTargetId = buildInfo.buildtargetid;
             core.info(`Created with buildTargetId '${buildTargetId}'.`);
         }

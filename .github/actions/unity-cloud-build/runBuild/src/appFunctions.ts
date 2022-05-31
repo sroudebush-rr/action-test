@@ -56,7 +56,8 @@ export async function createNewBuildTargetForBranch(
   targetName: string,
   repoUrl: string,
   branchName: string,
-  subdirectoryPath: string
+  subdirectoryPath: string,
+  projectName: string
 ): Promise<BuildTargetInfo> {
   const existingTargets = await api.getBuildTargets();
   const existingTargetBranches = existingTargets.map(bt => bt.settings.scm.branch);
@@ -68,7 +69,7 @@ export async function createNewBuildTargetForBranch(
 
   const platform = 'webgl';
   const unityVersion = 'latest2021';
-  const executableName = 'default-webgl';
+  const executableName = projectName;
 
   const buildTargetResponse = await api.createBuildTarget(
     targetName,
