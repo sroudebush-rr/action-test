@@ -27,8 +27,7 @@ on:
         required: true
       aws-region:
         description: 'The AWS region'
-        required: false
-        default: 'us-east-2'
+        required: true
 jobs:
   publish:
     runs-on: ${{ inputs.runs-on }}
