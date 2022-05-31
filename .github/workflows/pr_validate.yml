@@ -1,4 +1,4 @@
-name: PR Validate
+name: Build and Publish Gemini
 on:
   push:
     branches:
@@ -12,24 +12,24 @@ jobs:
     environment: action-runner-env
     steps:
       - uses: actions/checkout@v2
-      #- id: cloud-build
-      #  uses: ./.github/actions/unity-cloud-build/runBuild
-      #  with:
-      #    orgId: 20066671868386
-      #    projectId: 7e50c94f-4652-4d58-bc5b-d36dcfa8ab62
-      #    apiKey: ${{ secrets.UNITY_CLOUD_BUILD_API_KEY }}
-      #    repoUrl: ${{ github.repositoryUrl }}
-      #    gitRef: ${{ github.head_ref || github.ref }}
-      #    gitSha: ${{ github.event.pull_request.head.sha || github.context.sha }}
-      #    subdirectoryPath: 'empty-test-proj'
+      - id: cloud-build
+        uses: ./.github/actions/unity-cloud-build/runBuild
+        with:
+          orgId: 20066671868386
+          projectId: 7e50c94f-4652-4d58-bc5b-d36dcfa8ab62
+          apiKey: ${{ secrets.UNITY_CLOUD_BUILD_API_KEY }}
+          repoUrl: ${{ github.repositoryUrl }}
+          gitRef: ${{ github.head_ref || github.ref }}
+          gitSha: ${{ github.event.pull_request.head.sha || github.context.sha }}
+          subdirectoryPath: 'empty-test-proj'
       - id: stage-files
         uses: ./.github/actions/unity-cloud-build/stageFiles
         if: ${{ success() }}
         with:
-          #artifactUrl: ${{ steps.cloud-build.outputs.downloadUrl }}
-          artifactUrl: "https://storage.googleapis.com/unitycloud-build-user-svc-live-build/20066671868386%2F7e50c94f-4652-4d58-bc5b-d36dcfa8ab62%2Fgenerated_webgl_20220527150409195-2%2Fdefault-webgl.zip?GoogleAccessId=signurl-sa%40unity-cs-cloudbuild-prd.iam.gserviceaccount.com&Expires=1654010252&Signature=TsSJ6k679ZjrkxFi3VJJuL%2BXupyvcjhjAXpQpDli9%2FzIvCEOi2%2F0FTsMjYWExHS8BuAN5tpUA7%2FIBDocreR5bBsQVrAZ4S018VqE7BCSs8N2GlWQEAaTo7p9Y%2BcS6YYJRe2HP0f7qnk7HMqZXuj1PlxEAZDmQYNzGFVSBkfxtVT5nDTPjLabE9EI1I53Uz9zyhR8tWIP1967jC7cwaWqmFsBZ7BGBXor71lpxJ707CiLbzHlcPRBfkPvnIfCnxG52cRtT9aG9jgDsxFjcxzubRr6lZXsWFqY7B638rMPUapXY%2Bz%2B6ONet2m6noDMuCPdP9S5O40Zu7xzrPadjhXzZg%3D%3D&response-content-type=application%2Foctet-stream&response-content-disposition=attachment%3B%20filename%3Drapid-robotics-gemini-generated_webgl_20220527150409195-2.zip"
+          projectName: default-webgl
+          artifactUrl: ${{ steps.cloud-build.outputs.downloadUrl }}
       - id: publish-to-s3
-        uses: jakejarvis/s3-sync-action@master
+        uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --acl private --follow-symlinks
         env:

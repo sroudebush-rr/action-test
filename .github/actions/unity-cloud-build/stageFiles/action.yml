@@ -4,6 +4,10 @@ inputs:
   artifactUrl:
     description: 'Url to fetch artifact'
     required: true
+  projectName:
+    description: 'Url to fetch artifact'
+    required: false
+    default: 'default-webgl'
 outputs:
   stagingDirPath:
     description: "Path to directory where files are staged"
@@ -16,6 +20,7 @@ runs:
     - run: run.sh
       env:
         ARTIFACT_URL: "${{ inputs.artifactUrl }}"
+        PROJECT_NAME: "${{ inputs.projectName }}"
       shell: bash
     - id: generate-dist-path
       run: echo "::set-output name=stagingDirPath::$(echo "$(pwd)/dist")"
