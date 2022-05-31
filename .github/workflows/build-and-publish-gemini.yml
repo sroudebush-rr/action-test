@@ -23,9 +23,10 @@ jobs:
       aws-region: us-east-2
   publish:
     uses: ./.github/workflows/publish-unity-project.yml
+    needs: build
     name: Publish Gemini
     with:
-      staging-dir-path: ${{ jobs.build.outputs.staging-dir-path }}
+      staging-dir-path: ${{ needs.build.outputs.staging-dir-path }}
       environment: action-runner-env
       runs-on: wsl
     secrets:
