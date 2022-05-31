@@ -17,10 +17,7 @@ jobs:
       environment: action-runner-env
       runs-on: wsl
     secrets:
-      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
-      aws-region: us-east-2
+      unity-cloud-build-api-key: ${{ secrets.UNITY_CLOUD_BUILD_API_KEY }}
   publish:
     uses: ./.github/workflows/publish-unity-project.yml
     needs: build
@@ -30,5 +27,7 @@ jobs:
       environment: action-runner-env
       runs-on: wsl
     secrets:
-      unity-cloud-build-api-key: ${{ secrets.UNITY_CLOUD_BUILD_API_KEY }}
-
+      aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
+      aws-region: us-east-2
