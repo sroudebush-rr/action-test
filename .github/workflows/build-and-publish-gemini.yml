@@ -1,0 +1,33 @@
+name: Build Gemini
+on:
+  push:
+    branches:
+    - master
+    - develop
+    - prod
+jobs:
+  build-and-publish:
+    name: Build and Publish Gemini
+    steps:
+    - uses: actions/checkout@v2
+    - id: run-cloud-build
+      uses: ./.github/workflows/build-unity-project.yml
+      with:
+        cloud-build-org-id: '20066671868386'
+        cloud-build-project-id: 7e50c94f-4652-4d58-bc5b-d36dcfa8ab62
+        project-subdirectory: empty-test-proj
+        project-name: gemini
+        runs-on: wsl
+      secrets:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-s3-bucket: ${{ secrets.AWS_S3_BUCKET }}
+        aws-region: us-east-2
+    - id: publish-to-s3
+      uses: ./.github/workflows/publish-unity-project.yml
+      with:
+        staging-dir-path: ${{ steps.run-cloud-build.outputs.staging-dir-path }}
+        runs-on: wsl
+      secrets:
+        unity-cloud-build-api-key: ${{ secrets.UNITY_CLOUD_BUILD_API_KEY }}
+

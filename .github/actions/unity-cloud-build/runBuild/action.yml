@@ -1,0 +1,46 @@
+name: 'Unity Cloud Build Run Build Action'
+description: 'Allows to start a build on Unity Cloud Build, and await its result'
+branding:
+  icon: 'cloud-snow'
+  color: 'black'
+inputs:
+  orgId:
+    required: true
+    description: 'Organization ID'
+  projectId:
+    required: true
+    description: 'Project ID'
+  repoUrl:
+    required: true
+    description: 'The repo url to use for the Unity project'
+  gitRef:
+    required: true
+    description: 'Target Git Ref, e.g. /refs/heads/main'
+  gitSha:
+    required: true
+    description: 'Target Git commit SHA'
+  subdirectoryPath:
+    required: false
+    default: ''
+    description: 'The subdirectory that is the root of the Unity project'
+  projectName:
+    required: false
+    default: 'default-webgl'
+    description: 'The project name to use in Cloud Build, artifacts are prefixed with this name'
+  buildTargetId:
+    required: false
+    default: ''
+    description: 'Build Target ID'
+  apiKey:
+    required: true
+    description: 'Unity Cloud Build API key'
+outputs:
+  buildResult:
+    description: 'Metadata about the build result'
+  downloadUrl:
+    description: 'URL to download primary build artifact'
+  shareId:
+    description: 'Id to use to retreive build artifact info'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

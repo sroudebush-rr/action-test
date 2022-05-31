@@ -1,0 +1,27 @@
+name: 'Stage Unity Cloud Build Files'
+description: 'Downloads then stages a directory with build artifacts from cloud-build'
+inputs:
+  artifactUrl:
+    description: 'Url to fetch artifact'
+    required: true
+  projectName:
+    description: 'Url to fetch artifact'
+    required: false
+    default: 'default-webgl'
+outputs:
+  stagingDirPath:
+    description: "Path to directory where files are staged"
+    value: ${{ steps.generate-dist-path.outputs.stagingDirPath }}
+runs:
+  using: "composite"
+  steps:
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash 
+    - run: run.sh
+      env:
+        ARTIFACT_URL: "${{ inputs.artifactUrl }}"
+        PROJECT_NAME: "${{ inputs.projectName }}"
+      shell: bash
+    - id: generate-dist-path
+      run: echo "::set-output name=stagingDirPath::$(echo "$(pwd)/dist")"
+      shell: bash

@@ -1,0 +1,44 @@
+name: Publish Gemini
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: 'The runner to use'
+        default: wsl # TODO: identify runner to use
+        required: false
+        type: string
+      staging-dir-path:
+        description: 'The path to the directory that should be published to S3'
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        description: 'The AWS access key id'
+        required: true
+      aws-secret-access-key:
+        description: 'The AWS access key secret'
+        required: true
+      aws-s3-bucket:
+        description: 'The AWS S3 bucket name'
+        required: true
+      aws-region:
+        description: 'The AWS region'
+        required: false
+        default: 'us-east-2'
+jobs:
+  publish:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - id: publish-to-s3
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        if: ${{ success() }}
+        with:
+          args: --acl private --follow-symlinks
+        env:
+          AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+          AWS_REGION: ${{ secrets.aws-region }}
+          SOURCE_DIR: ${{ inputs.staging-dir-path }}
+          DEST_DIR: "gemini-${{ github.event.pull_request.head.sha || github.context.sha }}"
+
