@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: cloud-build
-        uses: ./.github/actions/unity-cloud-build/runBuild
+        uses: ./.github/actions/unity-cloud-build/run-build
         with:
           orgId: ${{ inputs.cloud-build-org-id }}
           projectId: ${{ inputs.cloud-build-project-id }}

@@ -5,7 +5,7 @@ system. Successful completion will output links that can be used to retreive the
 build artifacts.
 
 This project depends on a locally published package for the cloud-build-client.
-This can be handled using `yalc`, see the `cloudBuildClient` directory for some
+This can be handled using `yalc`, see the `cloud-build-client` directory for some
 additional instructions.
 
 ## Build

@@ -35,13 +35,12 @@ jobs:
     steps:
       - id: publish-to-s3
         uses: jakejarvis/s3-sync-action@v0.5.1
-        if: ${{ success() }}
         with:
           args: --acl private --follow-symlinks
         env:
-          AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
           AWS_ACCESS_KEY_ID: ${{ secrets.aws-access-key-id }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.aws-secret-access-key }}
+          AWS_S3_BUCKET: ${{ secrets.aws-s3-bucket }}
           AWS_REGION: ${{ secrets.aws-region }}
           SOURCE_DIR: ${{ inputs.staging-dir-path }}
           DEST_DIR: "gemini-${{ github.event.pull_request.head.sha || github.sha }}"
