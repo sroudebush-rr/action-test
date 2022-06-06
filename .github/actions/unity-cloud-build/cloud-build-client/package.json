@@ -16,6 +16,9 @@
     "test": "jest",
     "all": "yarn build && yarn format && yarn lint && yarn test"
   },
+  "engines": {
+    "yarn": "1.22.18"
+  },
   "keywords": [
     "actions",
     "node",
